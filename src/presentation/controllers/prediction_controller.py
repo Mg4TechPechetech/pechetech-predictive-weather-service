@@ -6,13 +6,18 @@ from src.use_cases.generate_market_prices_use_case import GenerateMarketPricesUs
 from src.infrastructure.engines.dummy_spatial_model import DummySpatialModelEngine
 from src.infrastructure.engines.dummy_time_series_model import DummyTimeSeriesModelEngine
 from src.presentation.dtos.prediction_responses import FishingZoneResponseDTO, MarketPriceResponseDTO
+from functools import lru_cache
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["Predictions"])
 
+@lru_cache()
 def get_fishing_zones_use_case():
+    # Cache the use case and ML engine instantiation to avoid re-creating them on every request
     return GenerateFishingZonesUseCase(DummySpatialModelEngine())
 
+@lru_cache()
 def get_market_prices_use_case():
+    # Cache the use case and ML engine instantiation to avoid re-creating them on every request
     return GenerateMarketPricesUseCase(DummyTimeSeriesModelEngine())
 
 @router.get("/zones/today", response_model=List[FishingZoneResponseDTO])
