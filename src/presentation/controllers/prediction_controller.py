@@ -22,27 +22,20 @@ def get_market_prices_use_case():
 
 @router.get("/zones/today", response_model=List[FishingZoneResponseDTO])
 def get_fishing_zones(use_case: GenerateFishingZonesUseCase = Depends(get_fishing_zones_use_case)):
-    predictions = use_case.execute(date.today())
-    return [
-        FishingZoneResponseDTO(
-            id_prediction=p.id_prediction,
-            date_validite=p.date_validite,
-            polygone_geojson=p.polygone_geojson,
-            score_probabilite=p.score_probabilite,
-            espece_cible=p.espece_cible
-        ) for p in predictions
-    ]
+    """
+    Performance Note: Returning the domain objects directly.
+    FastAPI + Pydantic V2 will automatically serialize these to the response_model
+    using the DTO's from_attributes=True ConfigDict, which is faster than
+    manual list comprehensions in Python.
+    """
+    return use_case.execute(date.today())
 
 @router.get("/market/{site_id}", response_model=List[MarketPriceResponseDTO])
 def get_market_prices(site_id: str, use_case: GenerateMarketPricesUseCase = Depends(get_market_prices_use_case)):
-    predictions = use_case.execute(site_id)
-    return [
-        MarketPriceResponseDTO(
-            id_prev_marche=p.id_prev_marche,
-            id_site_debarquement=p.id_site_debarquement,
-            espece=p.espece,
-            prix_estime_48h=p.prix_estime_48h,
-            indice_confiance=p.indice_confiance,
-            tendance=p.tendance
-        ) for p in predictions
-    ]
+    """
+    Performance Note: Returning the domain objects directly.
+    FastAPI + Pydantic V2 will automatically serialize these to the response_model
+    using the DTO's from_attributes=True ConfigDict, which is faster than
+    manual list comprehensions in Python.
+    """
+    return use_case.execute(site_id)
